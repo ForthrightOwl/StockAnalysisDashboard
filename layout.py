@@ -2,6 +2,7 @@ from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output
 from filters import filters_layout
 from multiples import multiples_layout
+from financial_statements_hist import fin_stat_hist
 from app import app
 import functions
 
@@ -32,8 +33,11 @@ app_layout = html.Div(children=[
     ),
 
     html.Div(id="content"),
-    dcc.Store(id="stock"),
-    dcc.Store(id="comps")
+    dcc.Store(id="stock", data="", storage_type="session"),
+    dcc.Store(id="comps", data=[], storage_type="session"),
+    dcc.Store(id="comps_pe", data=[], storage_type="session"),
+    dcc.Store(id="comps_evebitda", data=[], storage_type="session"),
+    dcc.Store(id="comps_pfcfe", data=[], storage_type="session")
 
 ],
     style={"background-color":functions.BACKGROUND_COLOR}
@@ -49,25 +53,6 @@ def tab_selector(tab):
     elif tab == "multiples":
         return multiples_layout
     elif tab == "fin-st-hist":
-        return html.Div(children=[
-
-            html.H1(children=["Historical Financial Statements"],
-                    style={"font-family": functions.FONT, "color": functions.TEXT_COLOR, "text-align": "center",
-                           "background-color": functions.BACKGROUND_COLOR, "font-size": 30}),
-
-            html.Div(children=[
-                html.Div("Select a statement:", style={"margin-left":"1%"}),
-                dcc.Dropdown(id="hist-fin-statement-select",
-                             options=[
-                                 {"label": "Income Statement", "value": "ins"},
-                                 {"label": "Balance Sheet", "value": "bss"},
-                                 {"label": "Cash Flow Statement", "value": "cfs"}
-                             ], style={"margin-left": "1%", "width": "40%"})
-            ]),
-
-            dash_table.DataTable()
-
-        ], style={"width":"90%", "margin":"auto"})
-
+        return fin_stat_hist
     elif tab == "fin-st-comp":
         return "Financial statements comparison tab"

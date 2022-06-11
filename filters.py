@@ -18,7 +18,9 @@ filters_layout = html.Div(children=[
                     html.Div("Put in a company ticker:", style={"margin-left":"2%"}),
                     dcc.Dropdown(id="ticker",
                                     options=sp500,
-                                    clearable=False, style={"margin-left":"2%", "width":"95%"})
+                                    persistence=True,
+                                    clearable=False,
+                                    style={"margin-left":"2%", "width":"95%"})
                 ],
                     style={"background-color":functions.CONTENT_COLOR, "border-color": functions.BORDER_COLOR, "border-width": "1.5px",
                             "border-style":"solid", "margin-top":"1cm", "width":"95%", "margin":"auto", "padding-bottom":"2%",
@@ -33,12 +35,14 @@ filters_layout = html.Div(children=[
                                      {"label": "Industry", "value": "industry"},
                                      {"label": "Custom", "value":"custom"}
                                  ],
+                                 persistence=True,
                                  style={"width": "95%", "margin-left": "2%"}),
                     html.Div(children=["Add company by ticker:"], style={"margin-left":"2%"}),
                     dcc.Dropdown(
                         id="comp_group_select",
                         options=[{"label": i, "value": i} for i in sp500],
                         multi=True,
+                        persistence=True,
                         style={"margin-left":"2%", "width":"95%"}
                     )
                 ], style={"background-color":functions.CONTENT_COLOR, "border-color": functions.BORDER_COLOR, "border-width": "1.5px",
@@ -69,10 +73,17 @@ def select_comp_group(ticker, preset):
 @app.callback(
     Output("stock", "data"),
     Output("comps", "data"),
+    Output("comps_pe", "data"),
+    Output("comps_evebitda", "data"),
+    Output("comps_pfcfe", "data"),
     Input("ticker", "value"),
     Input("comp_group_select", "value")
 )
 def store_data(ticker, comp_group):
     stock = ticker
     comps = comp_group
-    return stock, comps
+    comps_pe = functions.avg_ratio(functions.price_earnings, comps, functions.API_KEY)
+    comps_evebitda = functions.avg_ratio(functions.ev_ebitda, comps, functions.API_KEY)
+    comps_pfcfe = functions.avg_ratio(functions.price_fcfe, comps, functions.API_KEY)
+    return stock, comps, comps_pe, comps_evebitda, comps_pfcfe
+
